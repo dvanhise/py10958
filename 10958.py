@@ -3,15 +3,17 @@ from timeout_decorator import TimeoutError, timeout
 
 DIGIT_SEQUENCE = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 MAGIC_NUMBER = 10958
+EVAL_TIMEOUT = 2
 
 
 def main():
     seq = Sequence(DIGIT_SEQUENCE)
     for expression in seq:
-        # print('test: ' + expression)
         try:
             result = evalWrapper(expression)
-            if type(result) is int and abs(result - MAGIC_NUMBER) < 5:
+            if type(result) is float and result.is_integer():
+                result = int(result)
+            if result == MAGIC_NUMBER:
                 print('Result: {d}, Sequence: {s}'.format(result, expression))
         except TimeoutError:
             print('Timeout: ' + expression)
@@ -20,7 +22,7 @@ def main():
             raise
 
 
-@timeout(2, timeout_exception=StopIteration)
+@timeout(EVAL_TIMEOUT, timeout_exception=StopIteration)
 def evalWrapper(exp):
     return eval(exp)
 

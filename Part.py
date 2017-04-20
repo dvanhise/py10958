@@ -11,13 +11,12 @@ class Part(object):
 
     repDict = {
         PRE: ['', '('],
-        OP: ['+', '-', '*', '/', ''],
+        OP: ['+', '-', '*', '/', '**', ''],
         POST: ['', ')'],
         NEG: ['', '-']
     }
 
     def __init__(self, type, val=None):
-        print('New part: ' + type)
         self.type = type
         self.val = val
 
