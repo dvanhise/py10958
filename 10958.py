@@ -1,11 +1,28 @@
 from Sequence import Sequence
+import timeout_decorator
 
 DIGIT_SEQUENCE = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 MAGIC_NUMBER = 10958
 
+
 def main():
     seq = Sequence(DIGIT_SEQUENCE)
-    print(seq.evaluate())
+    for expression in seq:
+        print('test: ' + expression)
+        try:
+            result = evalWrapper(expression)
+            if type(result) is int and abs(result - MAGIC_NUMBER) < 5:
+                print('Result: %d, Sequence: %s'.format(result, expression))
+        except TimeoutError:
+            print('timeout: ' + expression)
+        except:
+            print('other failure: ' + expression)
+            raise
+
+
+@timeout_decorator.timeout(2, timeout_exception=StopIteration)
+def evalWrapper(exp):
+    return eval(exp)
 
 if __name__ == "__main__":
     main()

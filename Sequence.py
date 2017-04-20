@@ -1,4 +1,5 @@
 from Part import Part
+from itertools import product
 
 
 class Sequence(object):
@@ -7,22 +8,26 @@ class Sequence(object):
 
     def __init__(self, digitList):
         for ndx, val in enumerate(digitList):
+            if ndx == 0:
+                self.seq.append(Part(Part.NEG))
+
             if ndx > 0:
-                self.seq.append(Part('op'))
+                self.seq.append(Part(Part.OP))
 
             if ndx < len(digitList) - 1:
-                self.seq.append(Part('pre'))
+                self.seq.append(Part(Part.PRE))
 
-            self.seq.append(Part('dig', val))
+            self.seq.append(Part(Part.DIG, val))
 
             if ndx > 1:
-                self.seq.append(Part('post'))
+                self.seq.append(Part(Part.POST))
 
-    def evaluate(self):
-        return eval(self.toString())
+    def nextParenSet(self):
+        # TODO: paren stuff
+        yield
 
-    def toString(self):
-        str = ''
-        for part in self.seq:
-            str += part.toString()
-        return str
+    def __iter__(self):
+        # for a in self.nextParenSet():
+        i = product(*self.seq)
+        for x in i:
+            yield ''.join(x)
