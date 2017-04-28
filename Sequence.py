@@ -7,6 +7,7 @@ class Sequence(object):
     seq = []
 
     def __init__(self, digitList):
+        # str = -(1)+(2)+(3)...
         for ndx, val in enumerate(digitList):
             if ndx == 0:
                 self.seq.append(Part(Part.NEG))
@@ -22,12 +23,27 @@ class Sequence(object):
             if ndx > 1:
                 self.seq.append(Part(Part.POST))
 
-    def nextParenSet(self):
-        # TODO: paren stuff
-        yield
-
     def __iter__(self):
-        # for a in self.nextParenSet():
-        i = product(*self.seq)
-        for x in i:
-            yield ''.join(x)
+        allSequences = product(*self.seq)
+        for x in allSequences:
+            expression = ''.join(x)
+            if self.hasValidParens(expression) and self.isCalculatable(expression):
+                yield expression
+
+    def hasValidParens(self, exp):
+        if exp.count('(') != exp.count(')'):
+            return False
+
+        unmatched = 0
+        for char in exp:
+            if char == '(':
+                unmatched += 1
+            elif char == ')':
+                if unmatched == 0:
+                    return False
+                unmatched -= 1
+
+        return True
+
+    def isCalculatable(self, exp):
+        return exp.count('**') < 2
