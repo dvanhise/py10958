@@ -1,1 +1,6 @@
-output*.txt
+log.txt
+skipped.txt
+10958.sqlite.db
+
+.idea/
+log/

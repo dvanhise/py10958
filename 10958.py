@@ -1,55 +1,66 @@
 from Sequence import Sequence
+from Logger import Logger
 from WinTimeoutDecorator import timeout
 from tqdm import tqdm
-import threading
+import sys
 
 DIGIT_SEQUENCE = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+STATIC_PARTS = 5
 MAGIC_NUMBER = 10958
+MAX_NUMBER = 20000
 
 EVAL_TIMEOUT = 1
 LOG_FREQUENCY = 600
 
+l = Logger()
+
 
 def main():
-    logDict = {
-        'int': 0,
-        'float': 0,
-        'timeout': 0,
-        'other': 0
-    }
-    resultDict = {}
+    if len(sys.argv) != 3:
+        invalidArgs()
 
-    def printCurrentResults():
-        print(logDict)
-        print(resultDict)
-        print('\n' + '-'*50 + '\n')
-        threading.Timer(LOG_FREQUENCY, printCurrentResults).start()
+    if sys.argv[1] == 'run':
+        run(int(sys.argv[2]))
+    elif sys.argv[1] == 'result':
+        getResult(int(sys.argv[2]))
+    else:
+        invalidArgs()
 
-    printCurrentResults()
-    seq = Sequence(DIGIT_SEQUENCE)
+
+def invalidArgs():
+    print("Usage: 10958.py run <segment #>")
+    print("or     10958.py result <number>")
+    sys.exit(1)
+
+
+def run(segmentNum):
+    seq = Sequence(DIGIT_SEQUENCE, STATIC_PARTS, segmentNum)
+
+    l.logText('Running segment %d' % segmentNum)
     for expression in tqdm(seq):
         try:
             result = evalWrapper(expression)
             if (type(result) is float and result.is_integer()) or type(result) is int:
                 result = int(result)
+
+                if 0 < result < MAX_NUMBER:
+                    l.log(expression, result)
                 if result == MAGIC_NUMBER:
-                    print('Result: {}, Sequence: {}'.format(result, expression))
-
-                strResult = str(result)
-                if strResult in resultDict:
-                    resultDict[strResult] += [expression]
-                else:
-                    resultDict[strResult] = [expression]
-                logDict['int'] += 1
-            else:
-                logDict['float'] += 1
+                    print('Result: %d, Sequence: %s' % (result, expression))
         except TimeoutError:
-            logDict['timeout'] += 1
+            l.logSkipped(expression)
+        except (ValueError, SyntaxError, ZeroDivisionError, OverflowError):
+            pass
         except:
-            logDict['other'] += 1
+            print("Unexpected error %s with sequence %s" % (sys.exc_info()[0], expression))
+    l.logText('Segment %d complete, results saved' % segmentNum)
 
 
-@timeout(EVAL_TIMEOUT)
+def getResult(number):
+    print(l.getById(number))
+
+
+# @timeout(EVAL_TIMEOUT)
 def evalWrapper(exp):
     return eval(exp)
 
