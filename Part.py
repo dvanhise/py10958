@@ -1,33 +1,22 @@
 
 class Part(object):
 
-    PRE = 'PRE'
-    OP = 'OP'
-    POST = 'POST'
-    DIG = 'DIG'
-    NEG = 'NEG'
+    def __init__(self, options):
+        self.options = options
+        self.val = None
 
-    TYPES = [PRE, OP, POST, DIG, NEG]
+    def lock(self, ndx):
+        self.val = self.options[ndx]
 
-    repDict = {
-        PRE: ['', '('],
-        OP: ['+', '-', '*', '/', '**', ''],
-        POST: ['', ')'],
-        NEG: ['', '-']
-    }
+    def unlock(self):
+        self.val = None
 
-    def __init__(self, type, val=None):
-        self.type = type
-        self.val = val
-
-    def getType(self):
-        return self.type
+    def length(self):
+        return len(self.options)
 
     def __iter__(self):
-        if self.getType() == self.DIG:
+        if self.val:
             yield str(self.val)
-        # elif self.getType() in [self.PRE, self.POST]:
-        #     yield ''
         else:
-            for rep in self.repDict[self.getType()]:
+            for rep in self.options:
                 yield rep
