@@ -1,11 +1,11 @@
 from pony.orm import *
+from time import gmtime, strftime
 
 
 db = Database()
 
 DB_NAME = '10958.sqlite.db'
 LOG_FILE = 'log.txt'
-SKIPPED_FILE = 'skipped.txt'
 
 
 class Logger(object):
@@ -15,19 +15,23 @@ class Logger(object):
         db.bind('sqlite', DB_NAME, create_db=True)
         db.generate_mapping(create_tables=True)
 
-        self.cache = {}
+        # initialize cache dictionary from database
+        with db_session:
+            self.cache = dict(select((r.value, r.expression) for r in Result))
 
-    @db_session
     def log(self, expression, result):
         # Don't touch the database if we've saved a shorter expression with the same result
         fetched = self.cache.get(str(result))
         if fetched and len(expression) >= fetched:
             return
+        self.addToDb(expression, result)
 
+    @db_session
+    def addToDb(self, expression, result):
         try:
             entry = Result[result]
             if len(expression) < len(entry.expression):
-                entry.expression += expression
+                entry.expression = expression
                 self.cache[str(result)] = len(expression)
             else:
                 self.cache[str(result)] = len(entry.expression)
@@ -43,11 +47,13 @@ class Logger(object):
 
     def logText(self, text):
         with open(LOG_FILE, 'a') as f:
-            f.write(text + '\n')
+            f.write('[%s]%s\n' % (strftime("%H:%M:%S", gmtime()), text))
 
-    def logSkipped(self, exp):
-        with open(SKIPPED_FILE, 'a') as f:
-            f.write(exp + '\n')
+    def outputToFile(self):
+        with open('output.txt', 'a') as f:
+            for i in range(1, 20000+1):
+                exp = self.getById(i)
+                f.write('%5d - %s' % (i, exp))
 
 
 class Result(db.Entity):
