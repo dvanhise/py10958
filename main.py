@@ -1,8 +1,10 @@
 from Sequence import Sequence
 from Logger import Logger
-from WinTimeoutDecorator import timeout
 from tqdm import tqdm
 import sys
+import signal
+from evaluator import eval_expr
+# from math import sqrt as s, factorial as f
 
 DIGIT_SEQUENCE = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 STATIC_PARTS = 5
@@ -26,10 +28,16 @@ def main():
     else:
         invalidArgs()
 
+    # Catch SIGINT and log it
+    def signal_handler(sig, frame):
+        l.logText('Execution interrupted (%s)' % str(sig))
+        sys.exit(0)
+    signal.signal(signal.SIGINT, signal_handler)
+
 
 def invalidArgs():
-    print("Usage: 10958.py run <segment #>")
-    print("or     10958.py result <number>")
+    print("Usage: main.py run <segment #>")
+    print("or     main.py result <number>")
     sys.exit(1)
 
 
@@ -39,7 +47,7 @@ def run(segmentNum):
     l.logText('Running segment %d' % segmentNum)
     for expression in tqdm(seq):
         try:
-            result = evalWrapper(expression)
+            result = eval_expr(expression)
             if (type(result) is float and result.is_integer()) or type(result) is int:
                 result = int(result)
 
@@ -47,22 +55,15 @@ def run(segmentNum):
                     l.log(expression, result)
                 if result == MAGIC_NUMBER:
                     print('Result: %d, Sequence: %s' % (result, expression))
-        except TimeoutError:
-            l.logSkipped(expression)
+        # possible errors from evaluating the expression
         except (ValueError, SyntaxError, ZeroDivisionError, OverflowError):
             pass
-        except:
-            print("Unexpected error %s with sequence %s" % (sys.exc_info()[0], expression))
     l.logText('Segment %d complete, results saved' % segmentNum)
 
 
 def getResult(number):
     print(l.getById(number))
 
-
-# @timeout(EVAL_TIMEOUT)
-def evalWrapper(exp):
-    return eval(exp)
 
 if __name__ == "__main__":
     main()
