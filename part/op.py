@@ -3,12 +3,19 @@ from part.part import Part
 
 class Op(Part):
 
-    options = ['+', '-', '*', '/', '**', '']
+    options = [('+', '+'),
+               ('-', '-'),
+               ('*', '*'),
+               ('/', '/'),
+               ('**', '^'),
+               ('', '')]
 
     def isValid(self):
-        # This checks for a possible invalid condition when there's no operation
         if not self.current:
-            pre = self.prev
-            if pre.getType() == 'Pre' and pre.current:
+            post = self.getPrev('Post')
+            if post and post.current:
+                return False
+            num = self.getPrev('Number')
+            if num and num.isChanged():
                 return False
         return True

@@ -17,14 +17,17 @@ class Logger(object):
 
         # initialize cache dictionary from database
         with db_session:
-            self.cache = dict(select((r.value, r.expression) for r in Result))
+            self.cache = self.getAsDict()
 
     def log(self, expression, result):
         # Don't touch the database if we've saved a shorter expression with the same result
         fetched = self.cache.get(str(result))
-        if fetched and len(expression) >= fetched:
+        if fetched and len(expression) >= len(fetched):
             return
         self.addToDb(expression, result)
+
+    def getAsDict(self):
+        return dict(select((r.value, r.expression) for r in Result))
 
     @db_session
     def addToDb(self, expression, result):
@@ -32,9 +35,9 @@ class Logger(object):
             entry = Result[result]
             if len(expression) < len(entry.expression):
                 entry.expression = expression
-                self.cache[str(result)] = len(expression)
+                self.cache[str(result)] = expression
             else:
-                self.cache[str(result)] = len(entry.expression)
+                self.cache[str(result)] = entry.expression
         except core.ObjectNotFound:
             Result(value=result, expression=expression)
 
@@ -49,11 +52,11 @@ class Logger(object):
         with open(LOG_FILE, 'a') as f:
             f.write('[%s]%s\n' % (strftime("%H:%M:%S", gmtime()), text))
 
-    def outputToFile(self):
-        with open('output.txt', 'a') as f:
-            for i in range(1, 20000+1):
-                exp = self.getById(i)
-                f.write('%5d - %s' % (i, exp))
+    def outputToFile(self, upTo):
+        with open('output.txt', 'w', encoding="utf-8") as f:
+            for i in range(1, upTo+1):
+                exp = self.cache.get(i)
+                f.write('%5d - %s\n' % (i, exp))
 
 
 class Result(db.Entity):

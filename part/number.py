@@ -6,18 +6,22 @@ class Number(Part):
 
     def __init__(self, val):
         super(Number).__init__()
-        self.initVal = str(val)
-        self.options = [str(val), str(math.factorial(val))]
+        v = str(val)
+        self.initVal = v
+        self.options = [(v, v), (str(math.factorial(val)), v+'!')]
         if math.sqrt(val).is_integer():
-            self.options.append(str(int(math.sqrt(val))))
+            self.options.append(
+                (str(int(math.sqrt(val))), '√'+v))
 
     def isValid(self):
-        if self.current != self.initVal:
-            op = self.prev.prev
-            if op and op.getType() == 'Op' and not op.current:
-                return False
+        # Prevents digit concatenation when factorial or square root was applied to either
+        op = self.getPrev('Op')
+        if op and not op.current and self.isChanged():
+            return False
         return True
 
+    def isChanged(self):
+        return self.current != self.initVal
 
 # Is using square root cheating within the rules of the problem?
 # Adding an arbitrary ^2 would not be allowed unless that was the two

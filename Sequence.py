@@ -45,10 +45,12 @@ class Sequence:
 
     def __iter__(self):
         allSequences = product(*self.seq)
-        for x in allSequences:
-            expression = ''.join(x)
+        for exprList in allSequences:
+            expPart, strPart = zip(*exprList)
+            expression = ''.join(expPart)
+            rep = ''.join(strPart)
             if self.hasValidParens(expression):
-                yield expression
+                yield expression, rep
 
     # What's faster, validating parens or catching an exception?
     def hasValidParens(self, exp):
