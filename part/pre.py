@@ -1,14 +1,10 @@
 from part.part import Part
+from settings import C_CONCAT
 
 
 class Pre(Part):
-    options = [('', ''), ('(', '(')]
+    options = ['', '(']
 
-    def isValid(self):
-        # This checks for a possible invalid condition when there's no operation
-        if self.current:
-            op = self.getPrev('Op')
-            if op and not op.current:
-                return False
-        return True
-
+    def filterOptions(self, prev):
+        # This prevents an open paren being right after a concatenate operation
+        return self.options if prev and prev[-1] != C_CONCAT else [o for o in self.options if not o]

@@ -50,7 +50,7 @@ class Logger(object):
 
     def logText(self, text):
         with open(LOG_FILE, 'a') as f:
-            f.write('[%s]%s\n' % (strftime("%H:%M:%S", gmtime()), text))
+            f.write('[%s] %s\n' % (strftime("%H:%M:%S", gmtime()), text))
 
     def outputToFile(self, upTo):
         with open('output.txt', 'w', encoding="utf-8") as f:

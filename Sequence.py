@@ -3,16 +3,17 @@ from part.op import Op
 from part.pre import Pre
 from part.post import Post
 from part.number import Number
-from itertools import product
+from part.unary import Unary
 from functools import reduce
+from settings import C_CONCAT, C_FACT, C_SQRT
+import re
 
 
 class Sequence:
     seq = []
+    staticPart = ''
 
     def __init__(self, digitList, staticParts=0, segment=0):
-        super(Sequence).__init__()
-        # -(1)+(2)+(3)...
         for ndx, val in enumerate(digitList):
             if ndx == 0:
                 self.addToSequence(Neg())
@@ -21,8 +22,9 @@ class Sequence:
 
             if ndx < len(digitList) - 1:
                 self.addToSequence(Pre())
+            self.addToSequence(Unary())
             self.addToSequence(Number(val))
-            if ndx > 1:
+            if ndx > 0:
                 self.addToSequence(Post())
 
         staticSection = self.seq[:staticParts]
@@ -35,28 +37,35 @@ class Sequence:
 
         for section in staticSection:
             v = segment % section.length()
-            section.lock(v)
+            self.staticPart += section.lock(v, self.staticPart)
             segment //= section.length()
 
     def addToSequence(self, part):
-        if self.seq:
-            part.prev = self.seq[-1]
         self.seq.append(part)
 
     def __iter__(self):
-        allSequences = product(*self.seq)
-        for exprList in allSequences:
-            expPart, strPart = zip(*exprList)
-            expression = ''.join(expPart)
-            rep = ''.join(strPart)
+        for expression in self.forParts(self.seq):
             if self.hasValidParens(expression):
-                yield expression, rep
+                yield expression
 
-    # What's faster, validating parens or catching an exception?
+    # This is my implementation of itertools.product that allows each part to base the options
+    # it returns off of any earlier part of the generated sequence and doesn't use all memory
+    def forParts(self, parts, expr=''):
+        if parts:
+            options = parts[0].getIterator(expr)
+            for opt in options:
+                for a in self.forParts(parts[1:], expr + opt):
+                    yield a
+        else:
+            yield expr
+
+    def getPrettyVersion(self, expr):
+        expr = expr.replace(C_CONCAT, '').replace('**', '^')
+        expr = re.sub(r'%s(?P<num>[0-9]+)' % C_SQRT, lambda m: '√' + m.group('num'), expr)
+        expr = re.sub(r'%s(?P<num>[0-9]+)' % C_FACT, lambda m: m.group('num') + '!', expr)
+        return expr
+
     def hasValidParens(self, exp):
-        if exp.count('(') != exp.count(')'):
-            return False
-
         unmatched = 0
         for char in exp:
             if char == '(':
@@ -65,5 +74,7 @@ class Sequence:
                 if unmatched == 0:
                     return False
                 unmatched -= 1
+        return unmatched == 0
 
-        return True
+    def getStaticParts(self):
+        return ''.join(self.staticPart)

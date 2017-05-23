@@ -1,21 +1,10 @@
 from part.part import Part
+from settings import C_CONCAT
 
 
 class Op(Part):
 
-    options = [('+', '+'),
-               ('-', '-'),
-               ('*', '*'),
-               ('/', '/'),
-               ('**', '^'),
-               ('', '')]
+    options = ['+', '-', '*', '/', '**', C_CONCAT]
 
-    def isValid(self):
-        if not self.current:
-            post = self.getPrev('Post')
-            if post and post.current:
-                return False
-            num = self.getPrev('Number')
-            if num and num.isChanged():
-                return False
-        return True
+    def filterOptions(self, prev):
+        return self.options if prev and prev[-1].isdigit() else [o for o in self.options if o != C_CONCAT]

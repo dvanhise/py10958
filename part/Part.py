@@ -3,12 +3,14 @@ class Part:
     # options should be list of (<part of expression>, <print representation>) tuples
     options = []
     freeze = None
-    prev = None
-    current = None
 
-    def lock(self, ndx):
-        self.freeze = self.options[ndx]
-        self.current = self.freeze[0]
+    def lock(self, ndx, prev):
+        if self.options[ndx] in self.filterOptions(prev):
+            self.freeze = self.options[ndx]
+            return self.freeze
+        else:
+            # If a locked part is invalid, the entire test segment is invalid
+            raise ValueError
 
     def unlock(self):
         self.freeze = None
@@ -16,34 +18,11 @@ class Part:
     def length(self):
         return len(self.options)
 
-    def __iter__(self):
+    def getIterator(self, prev):
         if self.freeze is not None:
-            if self.isValid():
-                yield self.freeze
+            return [self.freeze]
         else:
-            for exp, rep in self.options:
-                temp = self.current
-                self.current = exp
-                if self.isValid():
-                    yield (exp, rep)
-                else:
-                    self.current = temp
+            return self.filterOptions(prev)
 
-    def getType(self):
-        return type(self).__name__
-
-    def isValid(self):
-        return True
-
-    def getPrev(self, partType, maxSteps=None):
-        here = self.prev
-        iterations = 1
-        while 1:
-            if not here:
-                return None
-            elif here.getType() == partType:
-                return here
-            elif maxSteps and iterations >= maxSteps:
-                return None
-            here = here.prev
-            iterations += 1
+    def filterOptions(self, prev):
+        return self.options
