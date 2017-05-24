@@ -1,14 +1,10 @@
 from part.part import Part
+from settings import C_CONCAT
 
 
 class Op(Part):
 
-    options = ['+', '-', '*', '/', '**', '']
+    options = ['+', '-', '*', '/', '**', C_CONCAT]
 
-    def isValid(self):
-        # This checks for a possible invalid condition when there's no operation
-        if not self.current:
-            pre = self.prev
-            if pre.getType() == 'Pre' and pre.current:
-                return False
-        return True
+    def filterOptions(self, prev):
+        return self.options if prev and prev[-1].isdigit() else [o for o in self.options if o != C_CONCAT]

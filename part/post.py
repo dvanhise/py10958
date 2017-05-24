@@ -4,10 +4,14 @@ from part.part import Part
 class Post(Part):
     options = ['', ')']
 
-    def isValid(self):
-        if self.current:
-            # This checks for redundant parentheses
-            pre = self.prev.prev
-            if pre.getType() == 'Pre' and pre.current:
-                return False
-        return True
+    def filterOptions(self, prev):
+        if prev.count('(') <= prev.count(')'):
+            return [o for o in self.options if not o]
+
+        # Check for redundant parentheses
+        for char in reversed(prev):
+            if char in '+-/*':
+                return self.options
+            elif char == '(':
+                break
+        return [o for o in self.options if not o]

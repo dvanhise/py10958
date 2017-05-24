@@ -2,63 +2,65 @@ from Sequence import Sequence
 from Logger import Logger
 from tqdm import tqdm
 import sys
-import signal
 from evaluator import eval_expr
-# from math import sqrt as s, factorial as f
-
-DIGIT_SEQUENCE = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-STATIC_PARTS = 5
-MAGIC_NUMBER = 10958
-MAX_NUMBER = 20000
-
-EVAL_TIMEOUT = 1
-LOG_FREQUENCY = 600
+from settings import *
 
 l = Logger()
 
 
 def main():
-    if len(sys.argv) != 3:
+    if len(sys.argv) < 2:
         invalidArgs()
 
-    if sys.argv[1] == 'run':
+    action = sys.argv[1]
+    if action == 'run':
         run(int(sys.argv[2]))
-    elif sys.argv[1] == 'result':
+    elif action == 'result':
         getResult(int(sys.argv[2]))
+    elif action == 'results':
+        l.outputToFile(MAX_NUMBER)
     else:
         invalidArgs()
 
-    # Catch SIGINT and log it
-    def signal_handler(sig, frame):
-        l.logText('Execution interrupted (%s)' % str(sig))
-        sys.exit(0)
-    signal.signal(signal.SIGINT, signal_handler)
-
 
 def invalidArgs():
-    print("Usage: main.py run <segment #>")
-    print("or     main.py result <number>")
+    print("Run a segment:      main.py run <segment #>")
+    print("Get one result:     main.py result <number>")
+    print("Generate results:   main.py results")
     sys.exit(1)
 
 
-def run(segmentNum):
-    seq = Sequence(DIGIT_SEQUENCE, STATIC_PARTS, segmentNum)
+def createSequence(segmentNum):
+    try:
+        return Sequence(DIGIT_SEQUENCE, STATIC_PARTS, segmentNum)
+    except ValueError:
+        l.logText('Segment %d invalid' % segmentNum)
+        print('All possible expressions from this segment are invalid.')
+        sys.exit(0)
 
+
+def run(segmentNum):
+    seq = createSequence(segmentNum)
+    print("Static part: '%s'" % seq.getStaticParts())
     l.logText('Running segment %d' % segmentNum)
     for expression in tqdm(seq):
         try:
             result = eval_expr(expression)
-            if (type(result) is float and result.is_integer()) or type(result) is int:
+            if float(result).is_integer():
                 result = int(result)
+                rep = seq.getPrettyVersion(expression)
 
-                if 0 < result < MAX_NUMBER:
-                    l.log(expression, result)
+                if 0 < result <= MAX_NUMBER:
+                    l.log(rep, result)
                 if result == MAGIC_NUMBER:
-                    print('Result: %d, Sequence: %s' % (result, expression))
-        # possible errors from evaluating the expression
+                    l.logText('Result: %d, Sequence: %s' % (result, rep))
         except (ValueError, SyntaxError, ZeroDivisionError, OverflowError):
+            # Possible errors from evaluating bad expressions
             pass
-    l.logText('Segment %d complete, results saved' % segmentNum)
+        except:
+            print(expression)
+            raise
+    l.logText('Segment %d complete' % segmentNum)
 
 
 def getResult(number):
