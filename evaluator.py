@@ -5,11 +5,10 @@ import ast
 import operator as op
 import re
 import math
-from settings import C_CONCAT, C_FACT, C_SQRT
+from settings import C_FACT, C_SQRT
 
 
 def eval_expr(expr):
-    # print(expr)
     return eval_(ast.parse(preeval(expr), mode='eval').body)
 
 
@@ -25,7 +24,6 @@ def eval_(node):
 
 
 def preeval(expr):
-    expr = expr.replace(C_CONCAT, '')
     expr = re.sub(r'%s(?P<num>[0-9]+)' % C_SQRT, lambda m: sqrt(int(m.group('num'))), expr)
     expr = re.sub(r'%s(?P<num>[0-9]+)' % C_FACT, lambda m: factorial(int(m.group('num'))), expr)
     return expr
@@ -48,7 +46,7 @@ def truediv(a, b):
 
 
 def factorial(a):
-    if a > 12:
+    if a > 20:
         raise ValueError
     return str(math.factorial(a))
 

@@ -30,18 +30,8 @@ def invalidArgs():
     sys.exit(1)
 
 
-def createSequence(segmentNum):
-    try:
-        return Sequence(DIGIT_SEQUENCE, STATIC_PARTS, segmentNum)
-    except ValueError:
-        l.logText('Segment %d invalid' % segmentNum)
-        print('All possible expressions from this segment are invalid.')
-        sys.exit(0)
-
-
 def run(segmentNum):
-    seq = createSequence(segmentNum)
-    print("Static part: '%s'" % seq.getStaticParts())
+    seq = Sequence(DIGIT_SEQUENCE, segmentNum)
     l.logText('Running segment %d' % segmentNum)
     for expression in tqdm(seq):
         try:
