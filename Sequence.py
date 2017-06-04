@@ -62,10 +62,10 @@ class Sequence:
     # Generate all possible combinations of core attributes (operation, unary op) for each core
     def iterBaseCores(self, cores):
         for segment, seq in enumerate(product(*cores)):
-            if segment >= self.subSegmentNum:
+            if segment > self.subSegmentNum:
                 yield seq
                 if segment % SUB_SEG_GRANULARITY == 0:
-                    print('Sub-segment %d complete' % segment)
+                    print('Sub-segment %d complete' % (segment/SUB_SEG_GRANULARITY))
 
     # Generate all possible ways to validly parenthesize the list of cores
     def iterParens(self, cores):

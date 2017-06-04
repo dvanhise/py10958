@@ -32,7 +32,6 @@ def invalidArgs():
 
 def run(segmentNum, subSegmentNum=0):
     seq = Sequence(DIGIT_SEQUENCE, segmentNum, subSegmentNum)
-    l.logText('Running segment %d' % segmentNum)
     for expression in tqdm(seq):
         try:
             result = eval_expr(expression)
@@ -50,7 +49,6 @@ def run(segmentNum, subSegmentNum=0):
         except:
             print(expression)
             raise
-    l.logText('Segment %d complete' % segmentNum)
 
 
 def getResult(number):
