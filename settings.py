@@ -6,9 +6,6 @@ MAGIC_NUMBER = 10958
 # Only results from 0 to MAX_NUMBER will be saved
 MAX_NUMBER = 100000
 
-# Determines how many segments the problem is broken into, higher number means more pieces
-STATIC_PARTS = 16
-
 # Math operator shorthand constants
 C_FACT = 'f'
 C_SQRT = 's'

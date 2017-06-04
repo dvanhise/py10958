@@ -14,7 +14,7 @@ def main():
 
     action = sys.argv[1]
     if action == 'run':
-        run(int(sys.argv[2]))
+        run(int(sys.argv[2]), int(sys.argv[3]) if len(sys.argv) > 3 else 0)
     elif action == 'result':
         getResult(int(sys.argv[2]))
     elif action == 'results':
@@ -24,14 +24,14 @@ def main():
 
 
 def invalidArgs():
-    print("Run a segment:      main.py run <segment #>")
+    print("Run a segment:      main.py run <segment #> [<sub-segment #>]")
     print("Get one result:     main.py result <number>")
     print("Generate results:   main.py results")
     sys.exit(1)
 
 
-def run(segmentNum):
-    seq = Sequence(DIGIT_SEQUENCE, segmentNum)
+def run(segmentNum, subSegmentNum=0):
+    seq = Sequence(DIGIT_SEQUENCE, segmentNum, subSegmentNum)
     l.logText('Running segment %d' % segmentNum)
     for expression in tqdm(seq):
         try:

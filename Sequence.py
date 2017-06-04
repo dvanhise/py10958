@@ -4,13 +4,17 @@ from settings import C_FACT, C_SQRT
 import re
 
 
+SUB_SEG_GRANULARITY = 10**5
+
+
 class Sequence:
     seq = []
     staticPart = ''
 
-    def __init__(self, digitList, segmentNum):
+    def __init__(self, digitList, segmentNum, subSegmentNum=0):
         self.digitList = [str(d) for d in digitList]
         self.segmentNum = segmentNum
+        self.subSegmentNum = subSegmentNum * SUB_SEG_GRANULARITY
 
     # Generate every possible mathematical expression using digitList digits in order
     def __iter__(self):
@@ -44,6 +48,7 @@ class Sequence:
         length = len(numberList) - 1
         for segment, concat in enumerate(product([False, True], repeat=length)):
             if segment >= self.segmentNum:
+                # Copy the list and create a unique concatenation of it
                 subList = numberList[:]
                 for ndx, c in enumerate(concat, start=1):
                     if c:
@@ -56,8 +61,11 @@ class Sequence:
 
     # Generate all possible combinations of core attributes (operation, unary op) for each core
     def iterBaseCores(self, cores):
-        for seq in product(*cores):
-            yield seq
+        for segment, seq in enumerate(product(*cores)):
+            if segment >= self.subSegmentNum:
+                yield seq
+                if segment % SUB_SEG_GRANULARITY == 0:
+                    print('Sub-segment %d complete' % segment)
 
     # Generate all possible ways to validly parenthesize the list of cores
     def iterParens(self, cores):
