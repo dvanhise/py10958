@@ -4,6 +4,7 @@ Solving the 10958 problem asked [in this Numberphile video](https://www.youtube.
 More generally, if I start with the sequence of numbers `1 2 3 4 5 6 7 8 9`, what results can I get by adding operations, mathematical symbols, or concatenating the numbers without changing their order?
 
 For example:
+
 |  |  |
 | ----- | - |
 | 1 | `1^23456789` |
