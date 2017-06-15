@@ -31,7 +31,7 @@ class Core:
 
     preParen = False
     postParen = False
-    unaryOp = ''
+    uop = ''
     op = ''
     last = False
 
@@ -50,7 +50,7 @@ class Core:
 
     def getStr(self):
         return '{}{}{}{}{}'.format('(' if self.preParen else '',
-                                   self.unaryOp,
+                                   self.uop,
                                    self.num,
                                    ')' if self.postParen else '',
                                    self.op if not self.last else '')
