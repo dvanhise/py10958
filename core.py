@@ -22,6 +22,10 @@ class CoreFactory:
         for uop in self.getUnaryOps():
             if self.last:
                 yield Core(self.num, '', uop, last=True)
+            # (x + -y) and (x - -y) are redundant forms of other shorter expressions and can be ignored
+            elif uop == '-':
+                for op in ['*', '/', '**']:
+                    yield Core(self.num, op, uop)
             else:
                 for op in ['+', '-', '*', '/', '**']:
                     yield Core(self.num, op, uop)
