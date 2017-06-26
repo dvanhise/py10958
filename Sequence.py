@@ -66,6 +66,7 @@ class Sequence:
                 yield seq
                 if segment % SUB_SEG_GRANULARITY == 0:
                     print('Sub-segment %d complete' % (segment/SUB_SEG_GRANULARITY - 1))
+        self.subSegmentNum = 0   # Start at subsegment 0 for all future segments
 
     # Generate all possible ways to validly parenthesize the list of cores
     def iterParens(self, cores):
