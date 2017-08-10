@@ -19,7 +19,7 @@ class Sequence:
     # Generate every possible mathematical expression using digitList digits in order
     def __iter__(self):
         for numList in self.iterConcatenation(self.digitList):
-            cores = [CoreFactory(num, ndx == len(numList)-1) for ndx, num in enumerate(numList)]
+            cores = [CoreFactory(num, ndx == 0) for ndx, num in enumerate(numList)]
             for coreList in self.iterBaseCores(cores):
                 for finalCoreList in self.iterParens(coreList):
                     exp = ''.join([core.getStr() for core in finalCoreList])
@@ -66,6 +66,7 @@ class Sequence:
                 yield seq
                 if segment % SUB_SEG_GRANULARITY == 0:
                     print('Sub-segment %d complete' % (segment/SUB_SEG_GRANULARITY - 1))
+        self.subSegmentNum = 0   # Start at subsegment 0 for all future segments
 
     # Generate all possible ways to validly parenthesize the list of cores
     def iterParens(self, cores):

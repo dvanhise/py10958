@@ -3,11 +3,11 @@ from settings import C_SQRT, C_FACT
 
 
 class CoreFactory:
-    last = False
+    first = False
 
-    def __init__(self, num, last=False):
+    def __init__(self, num, first=False):
         self.num = num
-        self.last = last
+        self.first = first
 
     def getUnaryOps(self):
         ops = ['', '-']
@@ -20,8 +20,12 @@ class CoreFactory:
 
     def __iter__(self):
         for uop in self.getUnaryOps():
-            if self.last:
-                yield Core(self.num, '', uop, last=True)
+            if self.first:
+                yield Core(self.num, '', uop, first=True)
+            # (x + -y) and (x - -y) are redundant forms of other shorter expressions and can be ignored
+            elif uop == '-':
+                for op in ['*', '/', '**']:
+                    yield Core(self.num, op, uop)
             else:
                 for op in ['+', '-', '*', '/', '**']:
                     yield Core(self.num, op, uop)
@@ -33,24 +37,21 @@ class Core:
     postParen = False
     uop = ''
     op = ''
-    last = False
+    first = False
 
-    def __init__(self, num, op, uop, last=False):
+    def __init__(self, num, op, uop, first=False):
         self.num = num
         self.op = op
         self.uop = uop
-        self.last = last
+        self.first = first
 
     def setParen(self, paren):
         self.preParen = (paren == '(')
         self.postParen = (paren == ')')
 
-    def setLast(self):
-        self.last = True
-
     def getStr(self):
-        return '{}{}{}{}{}'.format('(' if self.preParen else '',
+        return '{}{}{}{}{}'.format(self.op if not self.first else '',
+                                   '(' if self.preParen else '',
                                    self.uop,
                                    self.num,
-                                   ')' if self.postParen else '',
-                                   self.op if not self.last else '')
+                                   ')' if self.postParen else '')
