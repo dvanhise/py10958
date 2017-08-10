@@ -16,7 +16,7 @@ For example:
 
 py10958 generates mathematical statements following the rules and gathers the best integer results.
 
-`best_results.txt` contains the most recent version of all positive integer results up to 100,000 I've generated running the code so far. 
+`best_results.txt` contains the shortest sequences found with integer results for all numbers up to 100,000.
 
 ## Usage
 To run all possible sequences the code can generate, use `python main.py run 0`.  My best guess for runtime is about 300 days on my desktop.
