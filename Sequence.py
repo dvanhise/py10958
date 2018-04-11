@@ -15,6 +15,7 @@ class Sequence:
         self.digitList = [str(d) for d in digitList]
         self.segmentNum = segmentNum
         self.subSegmentNum = subSegmentNum * SUB_SEG_GRANULARITY
+        self.parenSetCache = {}
 
     # Generate every possible mathematical expression using digitList digits in order
     def __iter__(self):
@@ -41,6 +42,16 @@ class Sequence:
                     return False
                 unmatched -= 1
         return unmatched == 0
+
+    def getValidParenSets(self, length):
+        if length in self.parenSetCache:
+            return self.parenSetCache[length]
+
+        self.parenSetCache[length] = []
+        for parenSet in product([None, '(', ')'], repeat=length):
+            if self.hasValidParens(parenSet):
+                self.parenSetCache[length].append(parenSet)
+        return self.parenSetCache[length]
 
     # Generate all possible ways to concatenate or not the indices of numberList
     def iterConcatenation(self, numberList):
@@ -70,8 +81,7 @@ class Sequence:
 
     # Generate all possible ways to validly parenthesize the list of cores
     def iterParens(self, cores):
-        for parenSet in product([None, '(', ')'], repeat=len(cores)):
-            if self.hasValidParens(parenSet):
-                for i, paren in enumerate(parenSet):
-                    cores[i].setParen(paren)
-                yield cores
+        for parenSet in self.getValidParenSets(len(cores)):
+            for i, paren in enumerate(parenSet):
+                cores[i].setParen(paren)
+            yield cores
