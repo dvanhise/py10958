@@ -2,10 +2,12 @@ from Sequence import Sequence
 from Logger import Logger
 from tqdm import tqdm
 
+import multiprocessing as mp
+from itertools import zip_longest
 import sys
 import re
 
-from evaluator import eval_expr
+from evaluator import eval_expr, eval_batch
 from settings import *
 
 l = Logger()
@@ -35,13 +37,36 @@ def invalidArgs():
 
 def run(segmentNum, subSegmentNum=0):
     seq = Sequence(DIGIT_SEQUENCE, segmentNum, subSegmentNum)
-    for expression in tqdm(seq):
-        result = eval_expr(expression)
+    pool = mp.Pool(processes=NUM_PROCESSES, maxtasksperchild=10)
+    manager = mp.Manager()
+    queue = manager.Queue()
 
+    for batch in grouper(tqdm(seq), BATCH_SIZE):
+        pool.apply_async(eval_batch, (batch, queue,))
+
+        for i in range(queue.qsize()//2):
+            consume(queue)
+
+    # Finish and consume all jobs in progress
+    pool.close()
+    pool.join()
+    while not queue.empty():
+        consume(queue)
+
+
+def consume(queue):
+    batch = queue.get()
+    for expression, result in batch:
         if result and 0 < result <= MAX_NUMBER and float(result).is_integer():
             result = int(result)
             rep = getPrettyVersion(expression)
             l.log(rep, result)
+
+
+def grouper(iterable, n):
+    # grouper('ABCDEFG', 3) --> ABC DEF G"
+    args = [iter(iterable)] * n
+    return zip_longest(*args)
 
 
 def getPrettyVersion(expr):

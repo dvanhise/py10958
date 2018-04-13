@@ -9,6 +9,15 @@ import math
 from settings import C_FACT, C_SQRT
 
 
+def eval_batch(batch, queue):
+    results = []
+    for expr in batch:
+        result = eval_expr(expr)
+        if result is not None:
+            results.append((expr, result))
+    queue.put(results)
+
+
 def eval_expr(expr):
     try:
         return eval_(ast.parse(preeval(expr), mode='eval').body)
