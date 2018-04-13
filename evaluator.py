@@ -1,6 +1,7 @@
-'''
-Source: stackoverflow.com/questions/2371436/evaluating-a-mathematical-expression-in-a-string/9558001#9558001
-'''
+#
+# Done with the help of:
+# stackoverflow.com/questions/2371436/evaluating-a-mathematical-expression-in-a-string/9558001#9558001
+#
 import ast
 import operator as op
 import re
@@ -9,7 +10,15 @@ from settings import C_FACT, C_SQRT
 
 
 def eval_expr(expr):
-    return eval_(ast.parse(preeval(expr), mode='eval').body)
+    try:
+        return eval_(ast.parse(preeval(expr), mode='eval').body)
+    except (ValueError, SyntaxError, ZeroDivisionError, OverflowError):
+        # Possible errors from evaluating bad expressions
+        pass
+    except:
+        print(expr)
+        raise
+    return None
 
 
 def eval_(node):
@@ -33,7 +42,7 @@ def preeval(expr):
 # Raising to a power far less than 0 results in an infinitesimal that gets rounded off
 # No raising negative numbers to a non-integer power, complex results are not ok
 def power(a, b):
-    if abs(a*b) > 10**4 or b < -5 or (a < 0 and not float(b).is_integer()):
+    if abs(a*b) > 10**5 or b < -5 or (a < 0 and not float(b).is_integer()):
         raise ValueError
     return op.pow(a, b)
 

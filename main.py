@@ -1,7 +1,10 @@
 from Sequence import Sequence
 from Logger import Logger
 from tqdm import tqdm
+
 import sys
+import re
+
 from evaluator import eval_expr
 from settings import *
 
@@ -33,22 +36,19 @@ def invalidArgs():
 def run(segmentNum, subSegmentNum=0):
     seq = Sequence(DIGIT_SEQUENCE, segmentNum, subSegmentNum)
     for expression in tqdm(seq):
-        try:
-            result = eval_expr(expression)
-            if float(result).is_integer():
-                result = int(result)
-                rep = seq.getPrettyVersion(expression)
+        result = eval_expr(expression)
 
-                if 0 < result <= MAX_NUMBER:
-                    l.log(rep, result)
-                if result == MAGIC_NUMBER:
-                    l.logText('Result: %d, Sequence: %s' % (result, rep))
-        except (ValueError, SyntaxError, ZeroDivisionError, OverflowError):
-            # Possible errors from evaluating bad expressions
-            pass
-        except:
-            print(expression)
-            raise
+        if result and 0 < result <= MAX_NUMBER and float(result).is_integer():
+            result = int(result)
+            rep = getPrettyVersion(expression)
+            l.log(rep, result)
+
+
+def getPrettyVersion(expr):
+    expr = expr.replace('**', '^')
+    expr = re.sub(r'%s(?P<num>[0-9]+)' % C_SQRT, lambda m: '√' + m.group('num'), expr)
+    expr = re.sub(r'%s(?P<num>[0-9]+)' % C_FACT, lambda m: m.group('num') + '!', expr)
+    return expr
 
 
 def getResult(number):

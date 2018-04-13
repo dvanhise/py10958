@@ -1,7 +1,6 @@
 from core import CoreFactory
 from itertools import product
 from settings import C_FACT, C_SQRT
-import re
 
 
 SUB_SEG_GRANULARITY = 10**5
@@ -25,12 +24,6 @@ class Sequence:
                 for finalCoreList in self.iterParens(coreList):
                     exp = ''.join([core.getStr() for core in finalCoreList])
                     yield exp
-
-    def getPrettyVersion(self, expr):
-        expr = expr.replace('**', '^')
-        expr = re.sub(r'%s(?P<num>[0-9]+)' % C_SQRT, lambda m: '√' + m.group('num'), expr)
-        expr = re.sub(r'%s(?P<num>[0-9]+)' % C_FACT, lambda m: m.group('num') + '!', expr)
-        return expr
 
     def hasValidParens(self, parenList):
         unmatched = 0

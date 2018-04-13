@@ -1,10 +1,7 @@
 DIGIT_SEQUENCE = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
-# Gets special attention in the log
-MAGIC_NUMBER = 10958
-
 # Only results from 0 to MAX_NUMBER will be saved
-MAX_NUMBER = 100000
+MAX_NUMBER = 1000000
 
 # Math operator shorthand constants
 C_FACT = 'f'

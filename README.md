@@ -24,3 +24,5 @@ To run all possible sequences the code can generate, use `python main.py run 0`.
 But fear not, results are constantly accumulated and saved.  The search set of expressions is broken into segments which have sub-segments.  The console will inform you what segment and sub-segment it's looking at.  You can pick up where you left off with `python main.py run x y` where `x` and `y` are segment and optional sub-segment respectively. 
 
 To generate a results file `output.txt` from the database, use `python main.py results`.
+
+Modify the variables in settings.py to change behavior.

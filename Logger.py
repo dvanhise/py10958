@@ -21,10 +21,11 @@ class Logger(object):
 
     def log(self, expression, result):
         # Don't touch the database if we've saved a shorter expression with the same result
-        fetched = self.cache.get(str(result))
+        fetched = self.cache.get(result)
         if fetched and len(expression) >= len(fetched):
             return
         self.addToDb(expression, result)
+        self.cache[result] = expression
 
     def getAsDict(self):
         return dict(select((r.value, r.expression) for r in Result))
@@ -33,11 +34,7 @@ class Logger(object):
     def addToDb(self, expression, result):
         try:
             entry = Result[result]
-            if len(expression) < len(entry.expression):
-                entry.expression = expression
-                self.cache[str(result)] = expression
-            else:
-                self.cache[str(result)] = entry.expression
+            entry.expression = expression
         except core.ObjectNotFound:
             Result(value=result, expression=expression)
 
