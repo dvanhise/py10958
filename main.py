@@ -10,8 +10,6 @@ import re
 from evaluator import eval_expr, eval_batch
 from settings import *
 
-l = Logger()
-
 
 def main():
     if len(sys.argv) < 2:
@@ -23,7 +21,7 @@ def main():
     elif action == 'result':
         getResult(int(sys.argv[2]))
     elif action == 'results':
-        l.outputToFile(MAX_NUMBER)
+        Logger().outputToFile(MAX_NUMBER)
     else:
         invalidArgs()
 
@@ -44,7 +42,7 @@ def run(segmentNum, subSegmentNum=0):
     for batch in grouper(tqdm(seq), BATCH_SIZE):
         pool.apply_async(eval_batch, (batch, queue,))
 
-        for i in range(queue.qsize()//2):
+        for i in range(queue.qsize()//3):
             consume(queue)
 
     # Finish and consume all jobs in progress
@@ -60,7 +58,7 @@ def consume(queue):
         if result and 0 < result <= MAX_NUMBER and float(result).is_integer():
             result = int(result)
             rep = getPrettyVersion(expression)
-            l.log(rep, result)
+            Logger().log(rep, result)
 
 
 def grouper(iterable, n):
@@ -77,7 +75,7 @@ def getPrettyVersion(expr):
 
 
 def getResult(number):
-    print(l.getById(number))
+    print(Logger().getById(number))
 
 
 if __name__ == "__main__":

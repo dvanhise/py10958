@@ -51,7 +51,7 @@ def preeval(expr):
 # Raising to a power far less than 0 results in an infinitesimal that gets rounded off
 # No raising negative numbers to a non-integer power, complex results are not ok
 def power(a, b):
-    if abs(a*b) > 10**5 or b < -5 or (a < 0 and not float(b).is_integer()):
+    if abs(a*b) > 10**5 or b < -4 or (a < 0 and not float(b).is_integer()):
         raise ValueError
     return op.pow(a, b)
 

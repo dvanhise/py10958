@@ -4,7 +4,7 @@ DIGIT_SEQUENCE = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 MAX_NUMBER = 1000000
 
 # Number of worker processes to use
-NUM_PROCESSES = 3
+NUM_PROCESSES = 2
 
 # Number of expressions for each tack to evaluate
 BATCH_SIZE = 10000
