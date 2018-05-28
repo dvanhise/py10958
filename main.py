@@ -1,14 +1,11 @@
 from Sequence import Sequence
-from Logger import Logger
-from tqdm import tqdm
+from logger import Logger
 
-import multiprocessing as mp
-from itertools import zip_longest
 import sys
-import re
 
-from evaluator import eval_expr, eval_batch
+from evaluator import eval_expr
 from settings import *
+from runner import Runner
 
 
 def main():
@@ -35,43 +32,8 @@ def invalidArgs():
 
 def run(segmentNum, subSegmentNum=0):
     seq = Sequence(DIGIT_SEQUENCE, segmentNum, subSegmentNum)
-    pool = mp.Pool(processes=NUM_PROCESSES, maxtasksperchild=10)
-    manager = mp.Manager()
-    queue = manager.Queue()
-
-    for batch in grouper(tqdm(seq), BATCH_SIZE):
-        pool.apply_async(eval_batch, (batch, queue,))
-
-        for i in range(queue.qsize()//3):
-            consume(queue)
-
-    # Finish and consume all jobs in progress
-    pool.close()
-    pool.join()
-    while not queue.empty():
-        consume(queue)
-
-
-def consume(queue):
-    batch = queue.get()
-    for expression, result in batch:
-        if result and 0 < result <= MAX_NUMBER and float(result).is_integer():
-            result = int(result)
-            rep = getPrettyVersion(expression)
-            Logger().log(rep, result)
-
-
-def grouper(iterable, n):
-    # grouper('ABCDEFG', 3) --> ABC DEF G"
-    args = [iter(iterable)] * n
-    return zip_longest(*args)
-
-
-def getPrettyVersion(expr):
-    expr = expr.replace('**', '^')
-    expr = re.sub(r'%s(?P<num>[0-9]+)' % C_SQRT, lambda m: '√' + m.group('num'), expr)
-    expr = re.sub(r'%s(?P<num>[0-9]+)' % C_FACT, lambda m: m.group('num') + '!', expr)
-    return expr
+    r = Runner(seq, eval_expr)
+    r.run()
 
 
 def getResult(number):
